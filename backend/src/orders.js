@@ -407,7 +407,7 @@ router.get('/orders/:id', async (req, res) => {
 });
 
 // Buscar órdenes de un cliente por teléfono/correo
-router.get('/orders', requireAdmin, (req, res) => {
+router.get('/orders', requireAdmin, async (req, res) => {
   const { phone, email, eventId } = req.query;
   if (!phone && !email) {
     return res.status(400).json({ error: 'Debe enviar phone o email' });
