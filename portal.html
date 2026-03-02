@@ -1,0 +1,708 @@
+
+
+      // Formatea fechas en hora de Colombia (America/Bogota)
+      function formatDateCO(iso){
+        if(!iso) return '';
+        const d = new Date(iso);
+        if (isNaN(d)) return String(iso);
+        const parts = new Intl.DateTimeFormat('es-CO', {
+          timeZone: 'America/Bogota',
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+          hour12: false
+        }).formatToParts(d).reduce((acc,p)=>{ acc[p.type]=p.value; return acc; }, {});
+        // YYYY-MM-DD HH:mm:ss
+        return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
+      }
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Compra tus cartones – Bingo Flash</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#0f172a,#020617);color:#e5e7eb;min-height:100vh;display:flex;justify-content:center;}
+    main{width:100%;max-width:960px;padding:24px 16px 64px;}
+    .card{background:rgba(15,23,42,.9);border-radius:16px;padding:20px;box-shadow:0 18px 40px rgba(0,0,0,.6);border:1px solid rgba(148,163,184,.3);}
+    .hero{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:18px;}
+    @media(max-width:768px){.hero{grid-template-columns:1fr;}}
+    .hero img{width:100%;border-radius:12px;object-fit:cover;max-height:360px;}
+    .hero h1{margin:0 0 8px;font-size:1.7rem;}
+    .hero .event-meta{font-size:.95rem;color:#cbd5f5;margin-bottom:6px;}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(34,197,94,.15);color:#bbf7d0;font-size:.8rem;margin-right:4px;}
+    .offers-title{margin:16px 0 8px;font-size:1.15rem;}
+    .offers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
+    .offer-btn{border-radius:14px;padding:12px;border:1px solid rgba(148,163,184,.45);background:linear-gradient(135deg,#0f172a,#020617);cursor:pointer;text-align:left;transition:.12s;}
+    .offer-btn:hover{transform:translateY(-2px);box-shadow:0 18px 35px rgba(15,23,42,.9);border-color:rgba(248,250,252,.7);background:radial-gradient(circle at top,#1e293b,#020617);}
+    .offer-title{font-weight:600;font-size:1rem;margin-bottom:4px;}
+    .offer-price{font-size:1rem;font-weight:700;}
+    .offer-note{font-size:.8rem;}
+    .buyer-form{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;font-size:.9rem;}
+    .buyer-form label{display:block;margin-bottom:3px;color:inherit;}
+    .buyer-form input{width:100%;border-radius:8px;border:1px solid rgba(148,163,184,.5);padding:6px 8px;background:rgba(15,23,42,.9);color:#e5e7eb;font-size:.9rem;}
+    .fmt-options{display:flex;align-items:center;gap:10px;margin-top:4px;font-size:.9rem;}
+    .fmt-options label{display:inline-flex;align-items:center;gap:4px;cursor:pointer;}
+    .hint{font-size:.8rem;color:#9ca3af;margin-top:6px;}
+    .history{margin-top:28px;}
+    .history h2{margin:0 0 6px;font-size:1.05rem;}
+    .history-list{margin-top:8px;font-size:.9rem;}
+    .history-item{border-radius:10px;border:1px solid rgba(148,163,184,.35);padding:8px 10px;margin-bottom:6px;background:rgba(15,23,42,.7);}
+    .history-item .btn{margin-top:4px;}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.7);display:none;align-items:center;justify-content:center;z-index:2000;}
+    .modal{background:#020617;border-radius:16px;padding:18px 18px 14px;max-width:420px;width:100%;border:1px solid rgba(148,163,184,.45);box-shadow:0 18px 40px rgba(0,0,0,.8);}
+    .modal h2{margin:0 0 8px;font-size:1.1rem;}
+    .modal p{font-size:.9rem;margin:4px 0;}
+    .btn-row{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;}
+    .btn{border-radius:999px;padding:6px 14px;border:none;cursor:pointer;font-size:.9rem;}
+    .btn-secondary{background:rgba(15,23,42,.9);border:1px solid rgba(148,163,184,.8);color:#e5e7eb;}
+    .btn-primary{background:linear-gradient(135deg,#22c55e,#16a34a);color:#022c22;font-weight:600;}
+  
+    .progress-percentage{font-size:.85rem;opacity:.8;margin-top:4px;}
+
+    .offer-card{
+      position:relative;
+    }
+    .offer-badge{
+      position:absolute;
+      top:6px;
+      right:10px;
+      font-size:.7rem;
+      padding:2px 6px;
+      border-radius:999px;
+      background:rgba(248,250,252,.15);
+      border:1px solid rgba(148,163,184,.7);
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+</style>
+</head>
+<body>
+  <main>
+    <section class="card hero">
+      <div>
+        <img id="ev-flyer" src="assets/logo-center.png" alt="Flayer Bingo">
+        <p class="hint" id="ev-description">
+          Aquí va tu flayer con figuras, premios y detalles del evento (puedes reemplazar la imagen por un flyer real).
+        </p>
+      </div>
+      <div>
+        <h1 id="ev-title">Bingo Flash Tradicional – Noche de premios</h1>
+        <div class="event-meta" id="ev-date">Viernes 15 de diciembre · 8:00 p.m. (hora Colombia)</div>
+        <div class="event-meta" id="ev-where">Transmisión en vivo por las redes oficiales de Bingo Flash.</div>
+        <div style="margin:10px 0;">
+          <span class="pill">Figuras especiales y premios en efectivo</span>
+          <span class="pill">Cartones digitales (JPG)</span>
+        </div>
+        <h2 class="offers-title">Elige tu combo de cartones</h2>
+        <p id="sales-status" class="hint" style="margin:6px 0 10px;"></p>
+        <div class="progress-wrap">
+          <div class="progress-label">Progreso de ventas</div>
+          <div class="bf-progress" style="margin-top:4px">
+            <div class="bf-progress-inner" id="progress-bar-fill"></div>
+          </div>
+          <div id="progress-label" class="progress-percentage"></div>
+        </div>
+
+        <div class="buyer-form">
+          <div>
+            <label for="buyer-name-public">Tu nombre</label>
+            <input id="buyer-name-public" type="text" placeholder="Nombre completo">
+          </div>
+          <div>
+            <label for="buyer-phone-public">Celular (WhatsApp)</label>
+            <input id="buyer-phone-public" name="bf_buyer_phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej. 300 123 4567">
+          </div>
+          <div>
+            <label for="buyer-email-public">Correo (opcional)</label>
+            <input id="buyer-email-public" type="email" placeholder="correo@ejemplo.com">
+          </div>
+          <!-- Forzamos formato JPG para evitar problemas de generación de PDF -->
+          <div style="display:none">
+            <label>Formato de cartones</label>
+            <div class="fmt-options">
+              <label><input type="radio" name="fmt" value="jpg" checked> JPG</label>
+            </div>
+          </div>
+        </div>
+        <p class="hint">Haz clic en el combo que quieras comprar. El pago se realiza con Nequi y la plataforma genera tus cartones automáticamente.</p>
+        <div class="offers-grid" id="offers-list"></div>
+        <p class="hint">
+          Después del pago, podrás descargar tus cartones desde esta misma página o volver más tarde a la sección "Buscar mis cartones".
+        </p>
+
+        <!-- Aquí se mostrará el botón de descarga cuando el pago esté aprobado -->
+        <div id="download-area" style="margin-top:12px;"></div>
+      </div>
+    </section>
+
+    <section class="card history">
+      <h2>Buscar mis cartones</h2>
+      <p class="hint">Si ya compraste, escribe tu celular o correo para ver tus compras y descargar nuevamente tus cartones.</p>
+      <div class="buyer-form">
+        <div>
+          <label for="history-phone">Celular</label>
+          <input id="history-phone" type="tel" placeholder="300 123 4567">
+        </div>
+        <div>
+          <label for="history-email">Correo</label>
+          <input id="history-email" type="email" placeholder="correo@ejemplo.com">
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button id="btn-search-history" class="btn btn-secondary" type="button">Buscar compras</button>
+        </div>
+      </div>
+      <div id="history-results" class="history-list"></div>
+    </section>
+  </main>
+
+  <div id="pay-modal" class="modal-backdrop">
+    <div class="modal">
+      <h2>¿Ya realizaste el pago en Nequi?</h2>
+      <p>Se abrió una nueva pestaña con el link de pago. Completa el pago por el valor del combo seleccionado.</p>
+      <p>Cuando termines, vuelve aquí y pulsa <strong>“Revisar y ver mis cartones”</strong>.</p>
+      <p class="hint">La plataforma verificará el estado de tu orden. Si el pago fue aprobado y los cartones ya se generaron, verás links de descarga.</p>
+      <div class="btn-row">
+        <button class="btn btn-secondary" type="button" id="btn-cancel-pay">Cancelar</button>
+        <button class="btn btn-primary" type="button" id="btn-confirm-pay">Revisar y ver mis cartones</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exportador de combos (hojas JPG como en generación manual) -->
+  <script src="bf-api-base.js"></script>
+  <script src="assets/exporter/combos.js"></script>
+<script>
+    // BF: base dinámica del backend (producción: mismo dominio).
+    const API_BASE = (window.BF_API_BASE ? String(window.BF_API_BASE) : (location.origin || '')).
+      replace(/\/$/, '');
+    function getEventIdFromUrl(){
+      try{
+        const params = new URLSearchParams(window.location.search);
+        const v = params.get('event') || params.get('ev') || params.get('e');
+        if (v && v.trim()) return v.trim();
+      }catch(_){}
+      return 'VIERNES';
+    }
+    const EVENT_ID = getEventIdFromUrl();
+
+    const CONFIG = {
+      eventId: EVENT_ID,
+      offers: [],
+      event: null,
+      themeButtonBg: null,
+      themeButtonText: null
+    };
+
+    const fmtCOP = new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      maximumFractionDigits: 0
+    });
+
+    let currentOrderId = null;
+    let SALES_LOCKED = false;
+
+    function renderOffers(){
+      const c = document.getElementById('offers-list');
+      if(!c) return;
+      c.innerHTML = '';
+      if(!CONFIG.offers.length){
+        c.innerHTML = '<p class="hint">Por el momento no hay combos configurados para este evento.</p>';
+        return;
+      }
+      const comboSize = (CONFIG.event && CONFIG.event.combo_size) ? CONFIG.event.combo_size : 6;
+      CONFIG.offers.forEach(o => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'offer-card';
+        const noteCartones = (o.combos * comboSize) + ' cartones digitales';
+
+        let badgeHtml = '';
+        if (o.badge_text) {
+          badgeHtml = '<div class="offer-badge">' + o.badge_text + '</div>';
+        }
+
+        // Colores personalizados por oferta o por tema
+        const bgColor    = o.button_color      || CONFIG.themeButtonBg   || '';
+        const titleColor = o.button_text_color || CONFIG.themeButtonText || '';
+        const priceColor = o.price_text_color  || CONFIG.themePriceText  || titleColor || '';
+        const noteColor  = o.note_text_color   || CONFIG.themeNoteText   || titleColor || '';
+
+        btn.innerHTML =
+          badgeHtml +
+          '<div class="offer-title"' + (titleColor ? ' style="color:' + titleColor + '"' : '') + '>' + o.label + '</div>' +
+          '<div class="offer-price"' + (priceColor ? ' style="color:' + priceColor + '"' : '') + '>' + fmtCOP.format(o.price) + '</div>' +
+          '<div class="offer-note"' + (noteColor ? ' style="color:' + noteColor + '"' : '') + '>' + noteCartones + '</div>';
+
+        if (bgColor) btn.style.background = bgColor;
+        // fallback general
+        if (titleColor) btn.style.color = titleColor;
+if (SALES_LOCKED) {
+          btn.classList.add('disabled');
+          btn.disabled = true;
+        }
+        btn.addEventListener('click', () => {
+          if (SALES_LOCKED) return;
+          onClickOffer(o);
+        });
+        c.appendChild(btn);
+      });
+    }
+
+    async function onClickOffer(offer){
+      const name = document.getElementById('buyer-name-public').value.trim();
+      const phone = document.getElementById('buyer-phone-public').value.trim();
+      const email = document.getElementById('buyer-email-public').value.trim();
+      // Forzamos JPG para evitar problemas con PDF
+      const fmt = 'jpg';
+      if (!name || !phone) {
+        alert('Escribe tu nombre y celular antes de elegir el combo.');
+        return;
+      }
+      if (SALES_LOCKED) {
+        alert('Las ventas están cerradas para este evento.');
+        return;
+      }
+      try{
+        const resp = await fetch(API_BASE + '/api/orders', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            eventId: CONFIG.eventId,
+            offerId: offer.id,
+            buyerName: name,
+            buyerPhone: phone,
+            buyerEmail: email || null,
+            format: fmt,
+            vendor: ((new URLSearchParams(location.search).get('vendor') || '').trim() || null)
+          })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          alert('Error creando tu orden: ' + (data.error || ''));
+          return;
+        }
+        currentOrderId = data.orderId;
+        if (data.paymentUrl) window.open(data.paymentUrl, '_blank');
+        document.getElementById('pay-modal').style.display = 'flex';
+      }catch(err){
+        console.error(err);
+        alert('No se pudo conectar con la API.');
+      }
+    }
+
+    function closePayModal(){
+      const m = document.getElementById('pay-modal');
+      if (m) m.style.display = 'none';
+    }
+
+    async function checkOrderAndShowTickets(){
+      if (!currentOrderId) {
+        alert('Primero crea una orden seleccionando un combo.');
+        return;
+      }
+      try{
+        const resp = await fetch(API_BASE + '/api/orders/' + currentOrderId);
+        const data = await resp.json();
+        if (!resp.ok) {
+          alert('No se encontró la orden.');
+          return;
+        }
+        if (!['PAID','TICKETS_ISSUED'].includes(data.order.status)) {
+          alert('Tu pago aún no aparece como aprobado. Estado actual: ' + data.order.status);
+          return;
+        }
+        if (!data.tickets || !data.tickets.length) {
+          alert('Pago aprobado, pero los cartones aún no están listos.');
+          return;
+        }
+        // Mostrar botón y permitir descarga en un solo zip (JPG)
+        showDownloadUI({ order: data.order, tickets: data.tickets });
+      }catch(err){
+        console.error(err);
+        alert('Error al consultar el estado de tu orden.');
+      }finally{
+        closePayModal();
+      }
+    }
+
+    async function searchHistory(){
+      const phone = document.getElementById('history-phone').value.trim();
+      const email = document.getElementById('history-email').value.trim();
+      if (!phone && !email) {
+        alert('Escribe al menos tu celular o tu correo para buscar.');
+        return;
+      }
+      try{
+        const params = new URLSearchParams();
+        if (phone) params.append('phone', phone);
+        if (email) params.append('email', email);
+        // Enviar también el ID del evento actual para que el backend
+        // sólo devuelva compras/cartones de este evento.
+        if (CONFIG.eventId) params.append('eventId', CONFIG.eventId);
+        const resp = await fetch(API_BASE + '/api/orders?' + params.toString());
+        const data = await resp.json();
+        if (!resp.ok) {
+          alert('Error al consultar el histórico: ' + (data.error || ''));
+          return;
+        }
+        const cont = document.getElementById('history-results');
+        cont.innerHTML = '';
+        if (!data.length) {
+          cont.innerHTML = '<p class="hint">No se encontraron compras con esos datos.</p>';
+          return;
+        }
+        data.forEach(order => {
+          const div = document.createElement('div');
+          div.className = 'history-item';
+          let html = '<div class="history-main"><strong>Orden ' + order.id + '</strong> – ' +
+                     fmtCOP.format(order.amount_cop || 0) + '</div>';
+          html += '<div class="history-meta">Estado: ' + order.status + '</div>';
+          html += '<div class="history-meta">Fecha: ' + formatDateCO(order.created_at) + '</div>';
+          html += '<div class="history-meta">Evento: ' + (order.event_id || '-') + '</div>';
+          if (order.status === 'PAID') {
+            html += '<div style="margin-top:6px;">' +
+                    '<button type="button" class="btn btn-secondary" data-order-id="' + order.id + '">Descargar cartones (JPG)</button>' +
+                    '</div>';
+          }
+          div.innerHTML = html;
+          cont.appendChild(div);
+        });
+        const buttons = cont.querySelectorAll('button[data-order-id]');
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const orderId = btn.getAttribute('data-order-id');
+            showTicketsFromHistory(orderId);
+          });
+        });
+      }catch(err){
+        console.error(err);
+        alert('Error al consultar el histórico.');
+      }
+    }
+
+    async function showTicketsFromHistory(orderId){
+      if (!orderId) {
+        alert('No se encontró el ID de la orden.');
+        return;
+      }
+      try{
+        const resp = await fetch(API_BASE + '/api/orders/' + orderId);
+        const data = await resp.json();
+        if (!resp.ok) {
+          alert('No se encontró la orden.');
+          return;
+        }
+        if (!['PAID','TICKETS_ISSUED'].includes(data.order.status)) {
+          alert('La orden aún no aparece como pagada. Estado actual: ' + data.order.status);
+          return;
+        }
+        if (!data.tickets || !data.tickets.length) {
+          alert('La orden está pagada, pero los cartones aún no están generados.');
+          return;
+        }
+        showDownloadUI({ order: data.order, tickets: data.tickets, fromHistory: true });
+      }catch(err){
+        console.error(err);
+        alert('Error al consultar los cartones de esta orden.');
+      }
+    }
+
+    // ========== Descarga en JPG (sin PDF) ==========
+    function safeName(s){
+      return String(s || '')
+        .trim()
+        .replace(/[^a-zA-Z0-9._-]+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 80) || 'bingo';
+    }
+
+    
+    // === Descarga de cartones en HOJAS (1 JPG por combo), usando el generador del proyecto ===
+    function chunkArray(arr, size){
+      const out = [];
+      for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+      return out;
+    }
+
+    function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+    async function downloadComboSheets({ order, tickets }){
+      const btn = document.getElementById('btn-download-sheets');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Generando hojas...';
+      }
+
+      try{
+        if (!window.BF_COMBOS || !window.BF_COMBOS.composePage) {
+          alert('No se pudo cargar el generador de cartones (assets/exporter/combos.js).');
+          return;
+        }
+
+        const eventId = (order && order.event_id) ? order.event_id : (CONFIG.eventId || 'evento');
+        const comboSize = Number(order?.combo_size) || (window.__BF_getEventComboSize ? window.__BF_getEventComboSize() : 6) || 6;
+
+        const buyer = {
+          name: (order && order.buyer_name) ? order.buyer_name : '',
+          phone: (order && order.buyer_phone) ? order.buyer_phone : ''
+        };
+
+        const sorted = (tickets || []).slice().sort((a,b) => (a.card_index||0) - (b.card_index||0));
+        if (!sorted.length) {
+          alert('No hay cartones para descargar.');
+          return;
+        }
+
+        const groups = chunkArray(sorted, comboSize);
+
+        for (let i = 0; i < groups.length; i++){
+          const group = groups[i];
+
+          // Convertir a formato que entiende el generador del proyecto
+          const cards = group.map(t => ({
+            // Usar el mismo serial visible del generador manual (BF-<EVENT>-00001-XXXX)
+            // Si no existe (legacy), caemos a id.
+            id: t.serial || t.print_id || t.display_id || t.id || `CARD-${String((t.card_index||0)+1).padStart(3,'0')}`,
+            cols: t.cols,
+            buyer
+          }));
+
+          if (btn) btn.textContent = `Generando hoja ${i+1}/${groups.length}...`;
+
+          const dataUrl = await window.BF_COMBOS.composePage(cards);
+
+          const a = document.createElement('a');
+          a.href = dataUrl;
+          // Igual que el generador manual: EVENTO-combo-001.jpg
+          a.download = `${eventId}-combo-${String(i+1).padStart(3,'0')}.jpg`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          // Pequeña pausa para evitar bloqueo por múltiples descargas
+          await sleep(450);
+        }
+      }catch(e){
+        console.error(e);
+        alert('Ocurrió un error generando las hojas JPG.');
+      }finally{
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '⬇️ Descargar mis cartones (JPG)';
+        }
+      }
+    }
+
+    function showDownloadUI({ order, tickets, fromHistory }){
+      const area = document.getElementById('download-area');
+      if (!area) return;
+
+      const comboSize = Number(order?.combo_size) || 6;
+      const total = (tickets || []).length;
+      const combos = Math.max(1, Math.ceil(total / comboSize));
+
+      area.innerHTML = '';
+
+      const box = document.createElement('div');
+      box.className = 'history-item';
+      box.style.marginTop = '8px';
+
+      box.innerHTML =
+        '<div><strong>✅ Pago aprobado</strong></div>' +
+        '<div class="hint" style="margin-top:4px;">Listo. Se generaron ' + total + ' cartones. Descarga ' + combos + ' hoja(s) JPG (1 por combo).</div>' +
+        '<div style="margin-top:8px;">' +
+          '<button id="btn-download-sheets" type="button" class="btn btn-primary">⬇️ Descargar mis cartones (JPG)</button>' +
+        '</div>' +
+        '<div class="hint" style="margin-top:6px;">Si el navegador bloquea varias descargas, permite descargas automáticas para este sitio.</div>';
+
+      area.appendChild(box);
+
+      const btn = document.getElementById('btn-download-sheets');
+      if (btn) {
+        btn.addEventListener('click', () => downloadComboSheets({ order, tickets }));
+      }
+
+      if (fromHistory) {
+        try { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(_) {}
+      }
+    }
+
+    function updateProgressBar(){
+      const bar = document.getElementById('progress-bar-fill');
+      const label = document.getElementById('progress-label');
+      if (!bar || !label) return;
+      const ev = CONFIG.event || {};
+      const sold = ev.sold_cards || 0;
+      const target = ev.target_cards || ev.auto_target_cards || 0;
+      let pct = 0;
+      if (target > 0) {
+        pct = Math.round((sold / target) * 100);
+        if (pct > 100) pct = 100;
+      }
+      // Solo mostramos la barra con el porcentaje, sin revelar
+      // cantidades de cartones configurados ni vendidos.
+      bar.style.width = (target > 0 ? pct : 0) + '%';
+      if (target > 0) {
+        label.textContent = pct + '%';
+      } else {
+        label.textContent = '';
+      }
+    }
+
+    function updateSalesUI(){
+      const statusEl = document.getElementById('sales-status');
+      if (!statusEl) return;
+      if (SALES_LOCKED) {
+        statusEl.textContent = 'Ventas cerradas para este evento.';
+      } else {
+        statusEl.textContent = 'Ventas abiertas. Completa tus datos y elige un combo para comprar.';
+      }
+      updateProgressBar();
+    }
+
+
+    function applyEventTheme(theme){
+      if (!theme || typeof theme !== 'object') return;
+      const t = theme;
+
+      if (t.bg_color) {
+        document.body.style.background = t.bg_color;
+      }
+      if (t.text_color) {
+        document.body.style.color = t.text_color;
+      }
+      if (t.font_family) {
+        document.body.style.fontFamily = t.font_family;
+      }
+
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        if (t.card_bg_color) {
+          card.style.background = t.card_bg_color;
+        }
+      });
+
+      const heroTitle = document.querySelector('.hero h1');
+      if (heroTitle) {
+        if (t.heading_color) heroTitle.style.color = t.heading_color;
+        if (t.heading_font_size) heroTitle.style.fontSize = t.heading_font_size;
+      }
+
+      const metaEls = document.querySelectorAll('.hero .event-meta, p, .hint');
+      metaEls.forEach(el => {
+        if (t.body_font_size) el.style.fontSize = t.body_font_size;
+        if (t.text_color) el.style.color = t.text_color;
+      });
+
+      if (t.accent_color) {
+        document.querySelectorAll('.pill').forEach(el => {
+          el.style.backgroundColor = t.accent_color;
+        });
+      }
+
+      // Guardar colores por defecto para los botones de combos
+      if (t.button_bg_color) CONFIG.themeButtonBg = t.button_bg_color;
+      if (t.button_text_color) CONFIG.themeButtonText = t.button_text_color;
+    }
+
+    async function loadConfig(){
+      try{
+        const resp = await fetch(API_BASE + '/api/config/' + encodeURIComponent(EVENT_ID));
+        const data = await resp.json();
+        if (!resp.ok) {
+          console.error('No se pudo cargar la configuración del evento', data);
+          renderOffers(); // fallback con valores por defecto (vacío)
+          return;
+        }
+        CONFIG.event = data.event || null;
+        CONFIG.eventId = (data.event && data.event.id) || EVENT_ID;
+        // Aplicar tema de la landing, si viene configurado
+        if (data.event && data.event.theme) {
+          applyEventTheme(data.event.theme);
+        }
+        CONFIG.offers = (data.offers || []).map(o => ({
+          id: o.id,
+          label: o.label,
+          combos: o.combos_count || 1,
+          price: o.price_cop || 0,
+          button_color: o.button_color || null,
+          button_text_color: o.button_text_color || null,
+          price_text_color: o.price_text_color || null,
+          note_text_color: o.note_text_color || null,
+          badge_text: o.badge_text || ''
+        }));
+        SALES_LOCKED = !!(data.event && data.event.sales_locked_effective);
+
+        // Hero: título, fecha, lugar, descripción, flyer
+        if (data.event && data.event.name) {
+          const t = document.getElementById('ev-title');
+          if (t) t.textContent = data.event.name;
+        }
+        if (data.event && data.event.date_time) {
+          const dEl = document.getElementById('ev-date');
+          if (dEl) dEl.textContent = data.event.date_time;
+        } else if (data.event && data.event.cantada_at) {
+          const dEl = document.getElementById('ev-date');
+          try{
+            const d = new Date(data.event.cantada_at);
+            if (dEl && !Number.isNaN(d.getTime())) {
+              dEl.textContent = d.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
+            }
+          }catch(_){}
+        }
+        if (data.event && data.event.location) {
+          const w = document.getElementById('ev-where');
+          if (w) w.textContent = data.event.location;
+        }
+        if (data.event && data.event.description) {
+          const p = document.getElementById('ev-description');
+          if (p) p.textContent = data.event.description;
+        }
+        if (data.event && data.event.flyer_url) {
+          const img = document.getElementById('ev-flyer');
+          if (img) img.src = data.event.flyer_url;
+        }
+
+        updateSalesUI();
+        renderOffers();
+      }catch(err){
+        console.error('Error cargando configuración del evento', err);
+        renderOffers();
+      }
+    }
+
+    // BF: actualización automática del progreso sin recargar (polling)
+    async function refreshProgress(){
+      try{
+        const resp = await fetch(API_BASE + '/api/config/' + encodeURIComponent(EVENT_ID), { cache: 'no-store' });
+        const data = await resp.json();
+        if (!resp.ok) return;
+        if (data && data.event) {
+          CONFIG.event = Object.assign({}, CONFIG.event || {}, data.event);
+          SALES_LOCKED = !!data.event.sales_locked_effective;
+          updateSalesUI();
+        }
+      }catch(_){ }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadConfig();
+      setInterval(refreshProgress, 3500);
+      const cancel = document.getElementById('btn-cancel-pay');
+      const confirm = document.getElementById('btn-confirm-pay');
+      const searchBtn = document.getElementById('btn-search-history');
+      if (cancel) cancel.addEventListener('click', closePayModal);
+      if (confirm) confirm.addEventListener('click', checkOrderAndShowTickets);
+      if (searchBtn) searchBtn.addEventListener('click', searchHistory);
+    });
+  </script>
+
+</body>
+</html>

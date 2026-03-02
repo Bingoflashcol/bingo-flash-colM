@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cambiar PIN de Evento</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="admin-auth.js"></script>
+</head>
+<body>
+  <div class="container" style="max-width:720px;margin:0 auto;padding:16px;">
+    <h1 style="margin-bottom:8px;">Cambiar PIN de evento</h1>
+    <p style="opacity:.8;margin-top:0;">Este PIN protege las acciones administrativas del evento (combos, precios, pagos, etc.).</p>
+
+    <div class="card" style="padding:16px;border:1px solid #ddd;border-radius:12px;">
+      <label style="display:block;margin-bottom:6px;">ID del evento (ej: VIERNES, DOMINGO)</label>
+      <input id="eventId" type="text" placeholder="DOMINGO" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;" />
+
+      <div style="height:12px"></div>
+
+      <label style="display:block;margin-bottom:6px;">Nuevo PIN (mín. 4 caracteres)</label>
+      <input id="newPin" type="password" placeholder="••••" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;" />
+
+      <div style="height:12px"></div>
+
+      <button id="btnSave" style="width:100%;padding:10px;border-radius:10px;">Guardar PIN</button>
+
+      <div id="msg" style="margin-top:12px;"></div>
+
+      <hr style="margin:16px 0;opacity:.2" />
+
+      <button id="btnBack" style="width:100%;padding:10px;border-radius:10px;opacity:.85;">Volver</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // Requiere login admin (token). Si no hay token, redirige al login.
+  if (window.ensureAdmin) window.ensureAdmin();
+
+  const $ = (id) => document.getElementById(id);
+  const msg = (t, ok) => {
+    const el = $('msg');
+    el.textContent = t || '';
+    el.style.color = ok ? 'green' : 'crimson';
+  };
+
+  // Prellenar eventId desde query ?eventId=
+  try{
+    const u = new URL(location.href);
+    const q = (u.searchParams.get('eventId') || '').trim();
+    if (q) $('eventId').value = q;
+  }catch{}
+
+  $('btnSave').addEventListener('click', async () => {
+    const eventId = ($('eventId').value || '').trim();
+    const newPin = ($('newPin').value || '').trim();
+    if (!eventId) return msg('Escribe el ID del evento.', false);
+    if (!newPin || newPin.length < 4) return msg('El PIN debe tener mínimo 4 caracteres.', false);
+
+    msg('Guardando...', true);
+
+    const apiBase = (window.AdminAuth && AdminAuth.getApiBase) ? AdminAuth.getApiBase() : location.origin;
+    const token = (window.AdminAuth && AdminAuth.getToken) ? AdminAuth.getToken() : '';
+    try{
+      const resp = await fetch(apiBase + '/api/admin/events/' + encodeURIComponent(eventId) + '/pin', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ new_pin: newPin })
+      });
+      const data = await resp.json().catch(()=> ({}));
+      if (!resp.ok){
+        return msg(data.error || ('Error ' + resp.status), false);
+      }
+      // Guardamos el PIN en este navegador para futuras acciones por-evento (si lo habilitas luego).
+      try{
+        localStorage.setItem('bingo_event_admin_eventId', eventId);
+        localStorage.setItem('bingo_event_admin_pin', newPin);
+      }catch{}
+      msg('PIN actualizado para el evento ' + eventId + '.', true);
+      $('newPin').value = '';
+    }catch(e){
+      msg('No se pudo conectar con el backend. ¿Está corriendo en :4000?', false);
+    }
+  });
+
+  $('btnBack').addEventListener('click', () => {
+    const u = new URL(location.href);
+    const next = u.searchParams.get('next');
+    if (next) location.href = next;
+    else history.back();
+  });
+})();
+</script>
+</body>
+</html>

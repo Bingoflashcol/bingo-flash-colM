@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Login - Bingo Flash Tradicional</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .admin-login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+    .admin-card{max-width:520px;width:100%;background:rgba(10,18,35,.9);border:1px solid rgba(255,255,255,.08);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);padding:22px;}
+    .admin-card h1{margin:0 0 8px;font-size:22px;}
+    .admin-card p{margin:0 0 16px;opacity:.9;}
+    .admin-row{display:flex;gap:10px;flex-wrap:wrap;}
+    .admin-row > *{flex:1 1 auto;}
+    .admin-input{width:100%;padding:12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;}
+    .admin-btn{padding:12px 14px;border-radius:12px;border:none;cursor:pointer;}
+    .admin-btn.primary{background:#22c55e;color:#06220f;font-weight:700;}
+    .admin-btn.ghost{background:rgba(255,255,255,.08);color:#fff;}
+    .admin-help{margin-top:10px;font-size:12px;opacity:.85;line-height:1.35;}
+    .admin-err{margin-top:10px;font-size:13px;color:#ff8c8c;display:none;}
+  </style>
+</head>
+<body>
+  <div class="admin-login-wrap">
+    <div class="admin-card">
+      <h1>Acceso administrador</h1>
+      <p>Ingresa el <b>token</b> para habilitar configuración, pagos, vendedores y eventos.</p>
+
+      <div class="admin-row">
+        <input id="token" class="admin-input" type="password" placeholder="Pega aquí el token admin" autocomplete="current-password" />
+        <button id="btnLogin" class="admin-btn primary">Entrar</button>
+      </div>
+      <div class="admin-row" style="margin-top:10px;">
+        <button id="btnLogout" class="admin-btn ghost" type="button">Cerrar sesión (olvidar token)</button>
+        <a class="admin-btn ghost" href="portal.html" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">Ir a Landing</a>
+      </div>
+
+      <div id="err" class="admin-err">Token inválido o faltante.</div>
+
+      <div class="admin-help">
+        <div><b>Tip:</b> en producción define <code>ADMIN_TOKEN</code> en el backend (.env). Sin ese token, las rutas admin responden <code>401</code>.</div>
+        <div style="margin-top:6px;">Este token se guarda solo en este navegador (localStorage). Si cambias de PC o navegador, debes ingresarlo de nuevo.</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin-auth.js"></script>
+  <script>
+    (function(){
+      const qs = new URLSearchParams(location.search);
+      const next = qs.get('next') || 'index.html';
+      const inp = document.getElementById('token');
+      const err = document.getElementById('err');
+
+      const existing = window.AdminAuth?.getToken?.();
+      if (existing) inp.value = existing;
+
+      document.getElementById('btnLogin').addEventListener('click', async () => {
+        err.style.display = 'none';
+        const token = (inp.value || '').trim();
+        if (!token) { err.textContent = 'Por favor ingresa el token.'; err.style.display = 'block'; return; }
+        window.AdminAuth.setToken(token);
+
+        // Verificación: valida el token contra el backend real.
+        try {
+          const apiBase = window.AdminAuth?.getApiBase ? window.AdminAuth.getApiBase() : location.origin;
+          const res = await fetch(`${apiBase}/api/admin/ping`, { headers: { 'Authorization': `Bearer ${token}` } });
+          if (res.status === 401) throw new Error('401');
+        } catch (e) {
+          window.AdminAuth.clearToken();
+          err.textContent = 'Token inválido o backend no disponible (401).';
+          err.style.display = 'block';
+          return;
+        }
+        location.href = next;
+      });
+
+      document.getElementById('btnLogout').addEventListener('click', () => {
+        window.AdminAuth.clearToken();
+        inp.value = '';
+        err.textContent = 'Token eliminado.';
+        err.style.display = 'block';
+      });
+    })();
+  </script>
+</body>
+</html>

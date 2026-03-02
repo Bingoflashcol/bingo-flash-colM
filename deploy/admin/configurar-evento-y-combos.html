@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Configurar evento y combos – Bingo Flash</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="admin-auth.js"></script>
+  <script>window.ensureAdmin && window.ensureAdmin();</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:#020617;
+      color:#e5e7eb;
+    }
+    main{
+      max-width:960px;
+      margin:20px auto;
+      padding:16px;
+    }
+    h1{
+      font-size:1.6rem;
+      margin:0 0 4px;
+    }
+    p.hint{
+      font-size:.9rem;
+      color:#9ca3af;
+      margin-top:0;
+    }
+    .card{
+      border-radius:12px;
+      border:1px solid #1f2937;
+      background:#020617;
+      padding:16px;
+      margin-bottom:16px;
+      box-shadow:0 18px 50px rgba(15,23,42,.8);
+    }
+    label{
+      display:block;
+      font-size:.85rem;
+      margin-bottom:4px;
+    }
+    input,textarea,select{
+      width:100%;
+      padding:6px 8px;
+      border-radius:8px;
+      border:1px solid #4b5563;
+      background:#020617;
+      color:#e5e7eb;
+      font-size:.9rem;
+    }
+    textarea{
+      resize:vertical;
+      min-height:64px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:6px 14px;
+      border:none;
+      cursor:pointer;
+      font-size:.9rem;
+      margin-right:8px;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      color:#022c22;
+      font-weight:600;
+    }
+    .btn-secondary{
+      background:#020617;
+      border:1px solid #4b5563;
+      color:#e5e7eb;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:8px;
+      font-size:.88rem;
+    }
+    th,td{
+      border:1px solid #1f2937;
+      padding:6px 8px;
+      text-align:left;
+    }
+    th{
+      background:#0f172a;
+      font-weight:500;
+    }
+    td.actions{
+      white-space:nowrap;
+    }
+    #status{
+      font-size:.85rem;
+      color:#9ca3af;
+      margin-top:8px;
+    }
+  </style>
+  <script src="admin-auth.js"></script>
+  <script>window.ensureAdmin && window.ensureAdmin();</script>
+</head>
+<body>
+  <main>
+    <h1>Configurar evento y combos</h1>
+    <p class="hint">
+      Aquí controlas la información que verá el cliente en la landing <code>portal.html?event=ID</code> y los paquetes de combos disponibles.
+    </p>
+
+    <section class="card">
+      <h2 style="margin-top:0;font-size:1.1rem;">Datos generales del evento</h2>
+      <div class="row">
+        <div>
+          <label for="ev-id">ID del evento (debe coincidir con el ID que usas en el Administrador de eventos)</label>
+          <input id="ev-id" type="text" value="VIERNES">
+        </div>
+        <div>
+          <label for="ev-name">Nombre visible en la landing</label>
+          <input id="ev-name" type="text" placeholder="Bingo Flash Tradicional – Noche de premios">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="ev-date-text">Texto de fecha / hora (opcional)</label>
+          <input id="ev-date-text" type="text" placeholder="Viernes 15 de diciembre · 8:00 p.m. (hora Colombia)">
+        </div>
+        <div>
+          <label for="ev-location">Lugar / canal (opcional)</label>
+          <input id="ev-location" type="text" placeholder="Transmisión en vivo por las redes oficiales de Bingo Flash.">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="ev-flyer-url">URL o ruta del flyer</label>
+          <input id="ev-flyer-url" type="text" placeholder="assets/logo-center.png">
+          <div class="hint" style="margin-top:4px;font-size:.8rem;opacity:.8;">
+            Puedes pegar una URL (por ejemplo de tu hosting) o usar el campo de abajo para subir una imagen.
+          </div>
+        </div>
+        <div>
+          <label for="ev-flyer-file">Subir banner / flyer (JPG/PNG)</label>
+          <input id="ev-flyer-file" type="file" accept="image/*">
+          <div class="hint" style="margin-top:4px;font-size:.8rem;opacity:.8;">
+            La imagen se guardará embebida en la configuración del evento. Usa archivos livianos (&lt; 1&nbsp;MB) para que cargue rápido.
+          </div>
+        </div>
+        <div>
+          <label for="ev-combo-size">Cartones por combo</label>
+          <input id="ev-combo-size" type="number" min="1" value="6">
+        </div>
+      </div>
+      <div>
+        <label for="ev-description">Descripción / texto bajo el flyer</label>
+        <textarea id="ev-description" placeholder="Figuras especiales, premios y detalles del evento."></textarea>
+      </div>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;">
+        <button id="btn-save-event" class="btn btn-primary" type="button">Guardar datos del evento</button>
+        <button id="btn-open-theme" class="btn btn-secondary" type="button">Personalizar apariencia de la landing</button>
+      </div>
+    </section>
+    <!-- Modal de personalización de landing -->
+    <div id="theme-modal-backdrop" class="modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.8);z-index:50;align-items:center;justify-content:center;">
+      <div class="modal-card" style="background:#020617;border-radius:12px;padding:20px;max-width:760px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,.6);border:1px solid rgba(148,163,184,.5);max-height:90vh;overflow:auto;">
+        <h2 style="margin-top:0;font-size:1.2rem;">Personalizar apariencia de la landing</h2>
+        <p class="hint" style="margin-bottom:12px;">
+          Estos ajustes aplican solo a la landing del evento actual.
+        </p>
+
+        <h3 style="font-size:.95rem;margin-top:0.5rem;">Colores generales</h3>
+        <div class="row">
+          <div>
+            <label for="th-bg-color">Color de fondo de la página</label>
+            <input id="th-bg-color" type="color">
+          </div>
+          <div>
+            <label for="th-card-bg-color">Color de fondo de la tarjeta principal</label>
+            <input id="th-card-bg-color" type="color">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="th-text-color">Color de texto principal</label>
+            <input id="th-text-color" type="color">
+          </div>
+          <div>
+            <label for="th-accent-color">Color de acentos (etiquetas, pills)</label>
+            <input id="th-accent-color" type="color">
+          </div>
+        </div>
+
+        <h3 style="font-size:.95rem;margin-top:1rem;">Botones (valores por defecto)</h3>
+        <div class="row">
+          <div>
+            <label for="th-btn-bg-color">Color de fondo de botones</label>
+            <input id="th-btn-bg-color" type="color">
+          </div>
+          <div>
+            <label for="th-btn-text-color">Color de texto de botones</label>
+            <input id="th-btn-text-color" type="color">
+          </div>
+        </div>
+
+        <h3 style="font-size:.95rem;margin-top:1rem;">Fuentes y tamaños</h3>
+
+        <!-- Selector de familia tipográfica -->
+        <div class="row">
+          <div>
+            <label for="th-font-family">Familia tipográfica</label>
+            <select id="th-font-family">
+              <option value="">Usar fuente por defecto del sistema</option>
+              <option value="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+                System UI (recomendada)
+              </option>
+              <option value="'Segoe UI', system-ui, sans-serif">Segoe UI</option>
+              <option value="'Roboto', system-ui, sans-serif">Roboto</option>
+              <option value="'Poppins', system-ui, sans-serif">Poppins</option>
+              <option value="'Montserrat', system-ui, sans-serif">Montserrat</option>
+              <option value="'Nunito', system-ui, sans-serif">Nunito</option>
+            </select>
+            <div class="hint">Si se deja vacío se usará la fuente por defecto.</div>
+          </div>
+        </div>
+
+        <!-- Sliders para tamaños de fuente -->
+        <div class="row">
+          <div>
+            <label for="th-heading-size-range">Tamaño de título principal</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input
+                id="th-heading-size-range"
+                type="range"
+                min="1.2"
+                max="3"
+                step="0.05"
+              >
+              <span id="th-heading-size-value">1.8rem</span>
+            </div>
+            <input id="th-heading-size" type="hidden" value="1.8rem">
+          </div>
+
+          <div>
+            <label for="th-body-size-range">Tamaño de texto base</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input
+                id="th-body-size-range"
+                type="range"
+                min="0.7"
+                max="1.5"
+                step="0.05"
+              >
+              <span id="th-body-size-value">0.95rem</span>
+            </div>
+            <input id="th-body-size" type="hidden" value="0.95rem">
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;">
+          <button id="btn-theme-cancel" type="button" class="btn btn-secondary">Cerrar</button>
+          <button id="btn-theme-apply" type="button" class="btn btn-primary">Aplicar y guardar</button>
+        </div>
+      </div>
+    </div>
+
+
+
+    <section class="card">
+      <h2 style="margin-top:0;font-size:1.1rem;">Paquetes de combos (ofertas)</h2>
+      <p class="hint">
+        Estos paquetes se mostrarán como botones en la landing. El precio y la cantidad de combos se usarán para crear la orden y calcular cuántos cartones se generan.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Etiqueta (texto del botón)</th>
+            <th># de combos</th>
+            <th>Precio (COP)</th>
+            <th>Color botón / texto</th>
+            <th>Etiqueta destacada (badge)</th>
+            <th class="actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="offers-body"></tbody>
+      </table>
+      <div style="margin-top:8px;">
+        <button id="btn-add-offer" class="btn btn-secondary" type="button">Añadir paquete</button>
+        <button id="btn-save-offers" class="btn btn-primary" type="button">Guardar paquetes</button>
+      </div>
+    </section>
+
+    <p id="status"></p>
+  </main>
+
+  <script src="bf-api-base.js"></script>
+  <script>
+    const API_BASE = (window.BF_API_BASE ? String(window.BF_API_BASE) : (location.origin || '')).replace(/\/$/, '');
+    const STORAGE_KEY_LAST_EVENT = 'bf_last_config_event_id';
+
+    function loadLastEventId(){
+      try{
+        return localStorage.getItem(STORAGE_KEY_LAST_EVENT) || '';
+      }catch(_){
+        return '';
+      }
+    }
+
+    function saveLastEventId(id){
+      try{
+        const v = (id || '').trim();
+        if (v) {
+          localStorage.setItem(STORAGE_KEY_LAST_EVENT, v);
+        }
+      }catch(_){}
+    }
+
+
+    function setStatus(msg){
+      document.getElementById('status').textContent = msg || '';
+    }
+
+    function getEventId(){
+      const val = document.getElementById('ev-id').value.trim() || 'VIERNES';
+      saveLastEventId(val);
+      return val;
+    }
+
+
+    async function requirePin(){
+      const evId = (getEventId() || '').trim();
+      if(!evId){ alert('Selecciona un evento primero.'); throw new Error('EVENT_ID_REQUIRED'); }
+      if(window.BFAdminAuth && window.BFAdminAuth.requireEventPin){
+        await window.BFAdminAuth.requireEventPin(evId);
+      }
+    }
+
+    function addOfferRow(offer){
+      const tbody = document.getElementById('offers-body');
+      const tr = document.createElement('tr');
+
+      const tdLabel = document.createElement('td');
+      const inpLabel = document.createElement('input');
+      inpLabel.type = 'text';
+      inpLabel.dataset.role = 'label';
+      inpLabel.value = offer?.label || '';
+      tdLabel.appendChild(inpLabel);
+
+      const tdCombos = document.createElement('td');
+      const inpCombos = document.createElement('input');
+      inpCombos.type = 'number';
+      inpCombos.min = '1';
+      inpCombos.dataset.role = 'combos';
+      inpCombos.value = offer?.combos_count || offer?.combos || 1;
+      tdCombos.appendChild(inpCombos);
+
+      const tdPrice = document.createElement('td');
+      const inpPrice = document.createElement('input');
+      inpPrice.type = 'number';
+      inpPrice.min = '0';
+      inpPrice.dataset.role = 'price';
+      inpPrice.value = offer?.price_cop || offer?.price || 0;
+      tdPrice.appendChild(inpPrice);
+
+      const tdColors = document.createElement('td');
+      const inpColorBg = document.createElement('input');
+      inpColorBg.type = 'color';
+      inpColorBg.dataset.role = 'btn-bg';
+      inpColorBg.value = offer?.button_color || '#06b6d4';
+      const inpColorText = document.createElement('input');
+      inpColorText.type = 'color';
+      inpColorText.dataset.role = 'btn-text';
+      inpColorText.value = offer?.button_text_color || '#0f172a';
+      const inpColorPrice = document.createElement('input');
+      inpColorPrice.type = 'color';
+      inpColorPrice.dataset.role = 'price-text';
+      inpColorPrice.value = offer?.price_text_color || '#fbbf24';
+      const inpColorNote = document.createElement('input');
+      inpColorNote.type = 'color';
+      inpColorNote.dataset.role = 'note-text';
+      inpColorNote.value = offer?.note_text_color || '#cbd5f5';
+      inpColorText.style.marginRight = '4px';
+      inpColorPrice.style.marginRight = '4px';
+      inpColorBg.style.marginRight = '4px';
+      tdColors.appendChild(inpColorBg);
+      tdColors.appendChild(inpColorText);
+      tdColors.appendChild(inpColorPrice);
+      tdColors.appendChild(inpColorNote);
+
+      const tdBadge = document.createElement('td');
+      const inpBadge = document.createElement('input');
+      inpBadge.type = 'text';
+      inpBadge.placeholder = 'Ej: Más vendido, Recomendado';
+      inpBadge.dataset.role = 'badge';
+      inpBadge.value = offer?.badge_text || '';
+      tdBadge.appendChild(inpBadge);
+
+      const tdActions = document.createElement('td');
+      tdActions.className = 'actions';
+      const btnDel = document.createElement('button');
+      btnDel.type = 'button';
+      btnDel.className = 'btn btn-secondary';
+      btnDel.textContent = 'Eliminar';
+      btnDel.onclick = () => tr.remove();
+      tdActions.appendChild(btnDel);
+
+      tr.dataset.id = offer?.id || '';
+      tr.appendChild(tdLabel);
+      tr.appendChild(tdCombos);
+      tr.appendChild(tdPrice);
+      tr.appendChild(tdColors);
+      tr.appendChild(tdBadge);
+      tr.appendChild(tdActions);
+
+      tbody.appendChild(tr);
+    }
+
+    async function loadConfig(){
+      const eventId = getEventId();
+      setStatus('Cargando configuración...');
+      try{
+        const resp = await fetch(API_BASE + '/api/admin/events/' + encodeURIComponent(eventId));
+        if (!resp.ok){
+          setStatus('No hay configuración previa para este evento. Puedes crearla y guardar.');
+          document.getElementById('offers-body').innerHTML = '';
+          return;
+        }
+        const data = await resp.json();
+        const ev = data.event || {};
+        document.getElementById('ev-name').value = ev.name || '';
+        document.getElementById('ev-date-text').value = ev.date_time || '';
+        document.getElementById('ev-location').value = ev.location || '';
+        document.getElementById('ev-flyer-url').value = ev.flyer_url || 'assets/logo-center.png';
+        document.getElementById('ev-description').value = ev.description || '';
+        document.getElementById('ev-combo-size').value = ev.combo_size || 6;
+
+        // Tema de landing
+        try{
+          fillThemeForm(ev.theme || null);
+        }catch(_){}
+
+        const tbody = document.getElementById('offers-body');
+        tbody.innerHTML = '';
+        (data.offers || []).forEach(addOfferRow);
+        setStatus('Configuración cargada.');
+      }catch(err){
+        console.error(err);
+        setStatus('Error al cargar configuración.');
+      }
+    }
+
+    
+    function handleFlyerFileChange(evt){
+      const inputFile = evt.target;
+      const file = inputFile.files && inputFile.files[0];
+      if (!file) return;
+      if (!file.type || !file.type.startsWith('image/')) {
+        alert('Por favor selecciona un archivo de imagen (JPG, PNG, etc).');
+        inputFile.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        const urlInput = document.getElementById('ev-flyer-url');
+        if (urlInput && typeof dataUrl === 'string') {
+          urlInput.value = dataUrl;
+        }
+      };
+      reader.onerror = () => {
+        alert('No se pudo leer el archivo de imagen.');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function getThemeFromForm(){
+      const theme = {};
+      const bg = document.getElementById('th-bg-color')?.value;
+      const cardBg = document.getElementById('th-card-bg-color')?.value;
+      const textColor = document.getElementById('th-text-color')?.value;
+      const accent = document.getElementById('th-accent-color')?.value;
+      const btnBg = document.getElementById('th-btn-bg-color')?.value;
+      const btnText = document.getElementById('th-btn-text-color')?.value;
+      const fontFamily = document.getElementById('th-font-family')?.value.trim();
+      const headingSize = document.getElementById('th-heading-size')?.value.trim();
+      const bodySize = document.getElementById('th-body-size')?.value.trim();
+
+      if (bg) theme.bg_color = bg;
+      if (cardBg) theme.card_bg_color = cardBg;
+      if (textColor) theme.text_color = textColor;
+      if (accent) theme.accent_color = accent;
+      if (btnBg) theme.button_bg_color = btnBg;
+      if (btnText) theme.button_text_color = btnText;
+      if (fontFamily) theme.font_family = fontFamily;
+      if (headingSize) theme.heading_font_size = headingSize;
+      if (bodySize) theme.body_font_size = bodySize;
+
+      return theme;
+    }
+
+    function fillThemeForm(theme){
+      const t = theme || {};
+      const setVal = (id, fallback) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (t[id.replace('th-','').replace(/-/g,'_')] || t[id.replace('th-','')]) {
+          // attempt mapping by common keys if ever needed
+        }
+      };
+      // Asignar valores conocidos
+      const m = (id, key, fallback) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const v = (t && t[key]) || '';
+        if (v) {
+          el.value = v;
+        } else if (fallback) {
+          el.value = fallback;
+        }
+      };
+      m('th-bg-color', 'bg_color', '#020617');
+      m('th-card-bg-color', 'card_bg_color', '#020617');
+      m('th-text-color', 'text_color', '#e5e7eb');
+      m('th-accent-color', 'accent_color', '#22c55e');
+      m('th-btn-bg-color', 'button_bg_color', '#06b6d4');
+      m('th-btn-text-color', 'button_text_color', '#0f172a');
+
+      const fontEl = document.getElementById('th-font-family');
+      if (fontEl) {
+        fontEl.value = (t && t.font_family) || '';
+      }
+
+      // Tamaño de título principal
+      const headingHidden = document.getElementById('th-heading-size');
+      const headingRange  = document.getElementById('th-heading-size-range');
+      const headingLabel  = document.getElementById('th-heading-size-value');
+
+      let headingValue = (t && t.heading_font_size) || '1.8rem';
+      const headingNumber = parseFloat(headingValue) || 1.8;
+
+      if (headingHidden) headingHidden.value = headingValue;
+      if (headingRange)  headingRange.value  = headingNumber;
+      if (headingLabel)  headingLabel.textContent = headingNumber + 'rem';
+
+      // Tamaño de texto base
+      const bodyHidden = document.getElementById('th-body-size');
+      const bodyRange  = document.getElementById('th-body-size-range');
+      const bodyLabel  = document.getElementById('th-body-size-value');
+
+      let bodyValue = (t && t.body_font_size) || '0.95rem';
+      const bodyNumber = parseFloat(bodyValue) || 0.95;
+
+      if (bodyHidden) bodyHidden.value = bodyValue;
+      if (bodyRange)  bodyRange.value  = bodyNumber;
+      if (bodyLabel)  bodyLabel.textContent = bodyNumber + 'rem';
+    }
+
+    function openThemeModal(){
+      const backdrop = document.getElementById('theme-modal-backdrop');
+      if (!backdrop) return;
+      backdrop.style.display = 'flex';
+    }
+
+    function closeThemeModal(){
+      const backdrop = document.getElementById('theme-modal-backdrop');
+      if (!backdrop) return;
+      backdrop.style.display = 'none';
+    }
+
+async function saveEvent(){
+      const eventId = getEventId();
+      const payload = {
+        name: document.getElementById('ev-name').value.trim(),
+        date_time: document.getElementById('ev-date-text').value.trim() || null,
+        location: document.getElementById('ev-location').value.trim(),
+        flyer_url: document.getElementById('ev-flyer-url').value.trim(),
+        description: document.getElementById('ev-description').value.trim(),
+        combo_size: Number(document.getElementById('ev-combo-size').value || 6),
+        theme: getThemeFromForm()
+      };
+      setStatus('Guardando datos del evento...');
+      try{
+        const resp = await fetch(API_BASE + '/api/admin/events/' + encodeURIComponent(eventId), {
+          method:'PUT',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (!resp.ok){
+          setStatus('Error guardando evento: ' + (data.error || ''));
+          return;
+        }
+        setStatus('Evento guardado correctamente.');
+      }catch(err){
+        console.error(err);
+        setStatus('Error al guardar evento.');
+      }
+    }
+
+    async function saveOffers(){
+      const eventId = getEventId();
+      const rows = Array.from(document.querySelectorAll('#offers-body tr'));
+      const offers = rows.map(tr => {
+        const getInput = (role) => tr.querySelector('input[data-role="' + role + '"]');
+        const inpLabel = getInput('label');
+        const inpCombos = getInput('combos');
+        const inpPrice = getInput('price');
+        const inpBg = getInput('btn-bg');
+        const inpText = getInput('btn-text');
+        const inpPriceText = getInput('price-text');
+        const inpNoteText = getInput('note-text');
+        const inpBadge = getInput('badge');
+        return {
+          id: tr.dataset.id || undefined,
+          label: inpLabel ? inpLabel.value.trim() : '',
+          combos_count: Number(inpCombos && inpCombos.value ? inpCombos.value : 1),
+          price_cop: Number(inpPrice && inpPrice.value ? inpPrice.value : 0),
+          button_color: inpBg && inpBg.value ? inpBg.value : null,
+          button_text_color: inpText && inpText.value ? inpText.value : null,
+          price_text_color: inpPriceText && inpPriceText.value ? inpPriceText.value : null,
+          note_text_color: inpNoteText && inpNoteText.value ? inpNoteText.value : null,
+          badge_text: inpBadge && inpBadge.value ? inpBadge.value.trim() : ''
+        };
+      });
+      setStatus('Guardando paquetes de combos...');
+      try{
+        const resp = await fetch(API_BASE + '/api/admin/events/' + encodeURIComponent(eventId) + '/offers', {
+          method:'PUT',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ offers })
+        });
+        const data = await resp.json();
+        if (!resp.ok){
+          setStatus('Error guardando combos: ' + (data.error || ''));
+          return;
+        }
+        setStatus('Combos guardados correctamente.');
+        // Recargar para tener IDs actualizados
+        loadConfig();
+      }catch(err){
+        console.error(err);
+        setStatus('Error al guardar combos.');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const evIdInput = document.getElementById('ev-id');
+      const lastId = loadLastEventId();
+      const flyerFileInput = document.getElementById('ev-flyer-file');
+      if (flyerFileInput) flyerFileInput.addEventListener('change', handleFlyerFileChange);
+
+      if (evIdInput && lastId) {
+        evIdInput.value = lastId;
+      }
+
+      document.getElementById('btn-save-event').addEventListener('click', async ()=>{ try{ await requirePin(); }catch(_e){ return; } await saveEvent(); });
+      document.getElementById('btn-add-offer').addEventListener('click', () => addOfferRow(null));
+      document.getElementById('btn-save-offers').addEventListener('click', async ()=>{ try{ await requirePin(); }catch(_e){ return; } await saveOffers(); });
+
+      const btnOpenTheme = document.getElementById('btn-open-theme');
+      const btnThemeCancel = document.getElementById('btn-theme-cancel');
+      const btnThemeApply = document.getElementById('btn-theme-apply');
+      if (btnOpenTheme) btnOpenTheme.addEventListener('click', async ()=>{ try{ await requirePin(); }catch(_e){ return; } openThemeModal(); });
+      if (btnThemeCancel) btnThemeCancel.addEventListener('click', closeThemeModal);
+      if (btnThemeApply) btnThemeApply.addEventListener('click', async () => {
+        await saveEvent();
+        closeThemeModal();
+      });
+      // Sincronizar sliders de tamaño de fuente
+      const headingRange = document.getElementById('th-heading-size-range');
+      const headingHidden = document.getElementById('th-heading-size');
+      const headingLabel = document.getElementById('th-heading-size-value');
+
+      if (headingRange && headingHidden && headingLabel) {
+        const syncHeading = () => {
+          const num = parseFloat(headingRange.value) || 1.8;
+          const rem = num + 'rem';
+          headingHidden.value = rem;
+          headingLabel.textContent = rem;
+        };
+        headingRange.addEventListener('input', syncHeading);
+        syncHeading();
+      }
+
+      const bodyRange = document.getElementById('th-body-size-range');
+      const bodyHidden = document.getElementById('th-body-size');
+      const bodyLabel = document.getElementById('th-body-size-value');
+
+      if (bodyRange && bodyHidden && bodyLabel) {
+        const syncBody = () => {
+          const num = parseFloat(bodyRange.value) || 0.95;
+          const rem = num + 'rem';
+          bodyHidden.value = rem;
+          bodyLabel.textContent = rem;
+        };
+        bodyRange.addEventListener('input', syncBody);
+        syncBody();
+      }
+
+      if (evIdInput) {
+        evIdInput.addEventListener('change', () => {
+          saveLastEventId(evIdInput.value);
+          loadConfig();
+        });
+      } else {
+        document.getElementById('ev-id').addEventListener('change', loadConfig);
+      }
+      loadConfig();
+    });
+  </script>
+</body>
+</html>

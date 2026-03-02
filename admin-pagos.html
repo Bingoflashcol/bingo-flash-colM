@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin pagos – Bingo Flash</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="admin-auth.js"></script>
+  <script>window.ensureAdmin && window.ensureAdmin();</script>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    main {
+      width: 100%;
+      max-width: 640px;
+      padding: 32px 16px 48px;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 16px;
+      padding: 20px 20px 16px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+      color: #cbd5f5;
+    }
+    input {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 6px 8px;
+      font-size: 0.9rem;
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+    }
+    button {
+      border-radius: 999px;
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22;
+      margin-top: 10px;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-top: 6px;
+    }
+    pre {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  </style>
+  <script src="admin-auth.js"></script>
+  <script>window.ensureAdmin && window.ensureAdmin();</script>
+</head>
+<body>
+  <main>
+    <div class="card">
+      <h1>Admin – Aprobar pago y generar cartones</h1>
+      <p class="hint">
+        1. El cliente compra desde el portal.<br />
+        2. Copia el <strong>ID de la orden</strong> que ves en “Buscar mis
+        cartones”.<br />
+        3. Pégalo aquí y aprueba el pago cuando ya veas el dinero en Nequi.
+      </p>
+
+      <label for="order-id">ID de la orden</label>
+      <input
+        id="order-id"
+        type="text"
+        placeholder="Ej: 342eddc7-38c1-4512-bf65-daeeb72b5b39"
+      />
+
+      <button type="button" id="btn-mark-paid">Aprobar pago y generar cartones</button>
+
+      <p class="hint">
+        Después de aprobar, el cliente puede ir al portal y usar
+        “Revisar y ver mis cartones” o “Buscar mis cartones” para ver los links
+        de descarga.
+      </p>
+
+      <pre id="result-box">Resultado aparecerá aquí…</pre>
+    </div>
+  </main>
+
+  <script src="bf-api-base.js"></script>
+  <script>
+    const API_BASE = (window.BF_API_BASE ? String(window.BF_API_BASE) : (location.origin || '')).replace(/\/$/, '');
+
+    document
+      .getElementById("btn-mark-paid")
+      .addEventListener("click", async () => {
+        const orderId = document.getElementById("order-id").value.trim();
+        const box = document.getElementById("result-box");
+
+        if (!orderId) {
+          alert("Escribe el ID de la orden.");
+          return;
+        }
+
+        box.textContent = "Procesando…";
+
+        try {
+          const resp = await fetch(API_BASE + "/api/admin/mark-paid", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId }),
+          });
+
+          const data = await resp.json();
+
+          if (!resp.ok) {
+            box.textContent =
+              "Error: " + (data.error || "No se pudo aprobar la orden.");
+            return;
+          }
+
+          let text = "";
+          if (data.alreadyPaid) {
+            text += "La orden ya estaba marcada como PAGADA.\n\n";
+          } else {
+            text += "Orden marcada como PAGADA.\n\n";
+          }
+
+          text += "Estado actual: " + data.order.status + "\n";
+          text += "Evento: " + data.order.event_id + "\n";
+          text += "Monto: " + data.order.amount_cop + " (COP)\n";
+          text += "Cartones generados: " + (data.tickets?.length || 0) + "\n\n";
+
+          if (data.tickets && data.tickets.length) {
+            text += "Links de cartones:\n\n";
+            data.tickets.forEach((t, i) => {
+              if (t.pdf_url)
+                text += "Cartón " + (i + 1) + " PDF: " + t.pdf_url + "\n";
+              if (t.jpg_url)
+                text += "Cartón " + (i + 1) + " JPG: " + t.jpg_url + "\n";
+            });
+          }
+
+          box.textContent = text;
+        } catch (err) {
+          console.error(err);
+          box.textContent = "Error de conexión con la API.";
+        }
+      });
+  </script>
+</body>
+</html>
