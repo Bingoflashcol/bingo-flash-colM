@@ -78,7 +78,7 @@ try {
 } catch (e) {
   // Ignorar si no existe deploy en el entorno
 }
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.send('API Bingo funcionando');
 });
 
