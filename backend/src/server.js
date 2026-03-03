@@ -70,7 +70,7 @@ app.use('/files', express.static(filesDir));
 // --- Frontend estático (opcional) ---
 // Si despliegas todo junto (recomendado), el backend sirve el frontend desde /deploy
 try {
-  const publicRoot = path.join(__dirname, '..', '..', 'deploy');
+ const publicRoot = path.join(__dirname, '..', '..', 'desplegar');
   // landing en /
   app.use('/', express.static(path.join(publicRoot, 'landing')));
   // admin en /admin
